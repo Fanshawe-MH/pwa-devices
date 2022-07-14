@@ -54,8 +54,8 @@ featureSelector.addEventListener('change', (event) => {
       handleScreenWakeLockAPI();
       break;
 
-    case 'aaaa':
-      aaaa();
+    case 'idle-detection':
+      handleIdleDetectionAPI();
       break;
 
     case 'aaaa':
@@ -508,6 +508,20 @@ function handleScreenWakeLockAPI() {
   }
 }
 
+/**
+ * Provides a means to detect the user's idle status, active, 
+ * idle, and locked, specifically, and to be notified of changes 
+ * to idle status.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Idle_Detection_API
+ */
+function handleIdleDetectionAPI() {
+  console.log('IdleDetector:', IdleDetector);
+
+  IdleDetector.requestPermission()
+    .then((permission) => {
+      console.log('IdleDetector permission:', permission);
+    });
+}
 
 
 
