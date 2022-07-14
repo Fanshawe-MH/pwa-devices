@@ -50,6 +50,18 @@ featureSelector.addEventListener('change', (event) => {
       handlePageVisibility();
       break;
 
+    case 'screen-wake-lock':
+      handleScreenWakeLockAPI();
+      break;
+
+    case 'aaaa':
+      aaaa();
+      break;
+
+    case 'aaaa':
+      aaaa();
+      break;
+
     case 'aaaa':
       aaaa();
       break;
@@ -390,7 +402,9 @@ function handleBadgingAPI() {
 }
 
 /**
- * 
+ * The visibilitychange event is fired at the document when the
+ * contents of its tab have become visible or have been hidden.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event 
  */
 function handlePageVisibility() {
   let leftTime;
@@ -442,6 +456,59 @@ function handlePageVisibility() {
   });
 }
 
+/**
+ * The Screen Wake Lock API provides a way to prevent devices from dimming
+ * or locking the screen when an application needs to keep running.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
+ */
+function handleScreenWakeLockAPI() {
+  console.log('Navigator:', navigator);
+  if ('wakeLock' in navigator) {
+    console.log('Navigator wakeLock:', navigator.wakeLock);
+
+    /**
+     * The request() method returns a Promise that resolves with a
+     * WakeLockSentinel object, which allows control over screen
+     * dimming and locking.
+     * https://developer.mozilla.org/en-US/docs/Web/API/WakeLock/request
+     */
+    navigator.wakeLock.request('screen')
+      .then((sentinel) => {
+        console.log('WakeLockSentinel:', sentinel);
+
+        output.innerHTML = `
+          <div>Wake Lock is active!</div>
+        `;
+
+        // Create a button to release the lock.
+        const button = document.createElement('button');
+        button.innerText = 'Release screen';
+        output.append(button);
+
+        button.addEventListener('click', () => {
+
+          /**
+           * Releases the WakeLockSentinel.
+           * https://developer.mozilla.org/en-US/docs/Web/API/WakeLockSentinel/release
+           */
+          sentinel.release()
+            .then(() => {
+              sentinel = null;
+              output.innerHTML = `
+                Wake Lock deactivated.<br>
+                The screen was released!
+              `;
+            });
+        });
+
+      });
+  }
+  else {
+    output.innerText = 'Screen Wake Lock API not supported on this device.';
+  }
+}
+
+
 
 
 function aaa() {
@@ -457,38 +524,23 @@ function aaa() {
 
 
 
-// document.addEventListener('visibilitychange', () => {
-//   console.log('Visibility:', document.hidden);
+
+// console.log('freeze1');
+// document.addEventListener('freeze', function () {
+//   // The page is now frozen for CPU or battery usage optimization.
+//   console.log('The page is now frozen');
 // });
 
-// document.addEventListener("visibilitychange", function () {
-//   console.log('State:', document.visibilityState);
-//   if (document.visibilityState === 'hidden') {
-//     new Notification('Please, do not go!!!');
-//   }
-//   else {
-//     alert('Welcome back!');
+// document.addEventListener('resume', function () {
+//   // The page has been unfrozen.
+//   console.log('The page has been unfrozen.');
+//   if (document.wasDiscarded) {
+//     // Page was previously discarded by the browser while in a hidden tab.
+//     console.log('Page was previously discarded by the browser while in a hidden tab.');
 //   }
 // });
 
-
-
-console.log('freeze1');
-document.addEventListener('freeze', function () {
-  // The page is now frozen for CPU or battery usage optimization.
-  console.log('The page is now frozen');
-});
-
-document.addEventListener('resume', function () {
-  // The page has been unfrozen.
-  console.log('The page has been unfrozen.');
-  if (document.wasDiscarded) {
-    // Page was previously discarded by the browser while in a hidden tab.
-    console.log('Page was previously discarded by the browser while in a hidden tab.');
-  }
-});
-
-console.log('freeze2');
+// console.log('freeze2');
 
 
 
