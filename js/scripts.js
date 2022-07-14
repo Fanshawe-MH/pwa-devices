@@ -58,12 +58,12 @@ featureSelector.addEventListener('change', (event) => {
       handleScreenWakeLockAPI();
       break;
 
-    case 'permissions':
-      handlePermissionsAPI();
-      break;
-
     case 'geolocation':
       handleGeolocationAPI();
+      break;
+
+    case 'permissions':
+      handlePermissionsAPI();
       break;
 
     case 'aaaa':
@@ -627,6 +627,98 @@ function handleScreenWakeLockAPI() {
 }
 
 /**
+ * Allows the user to provide their location to web
+ * applications if they so desire.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+ */
+function handleGeolocationAPI() {
+  console.log('Navigator:', navigator);
+  if ('geolocation' in navigator) {
+    console.log('Geolocation:', navigator.geolocation);
+
+    // Create the helper elements
+    const buttonCurrentPosition = document.createElement('button');
+    output.appendChild(buttonCurrentPosition);
+    buttonCurrentPosition.innerText = 'Current Position';
+
+    const buttonWatchPosition = document.createElement('button');
+    output.appendChild(buttonWatchPosition);
+    buttonWatchPosition.innerText = 'Watch Position';
+
+    const message = document.createElement('div');
+    message.innerText = '';
+    output.appendChild(message);
+
+    // Get current position
+    buttonCurrentPosition.addEventListener('click', () => {
+
+      /**
+       * Retrieves the device's current location.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition
+       */
+      navigator.geolocation.getCurrentPosition(
+
+        // On Success callback
+        (position) => {
+          console.log('Current Position:', position);
+
+          message.innerHTML = `
+            <strong>Current Position:</strong>
+            <br>Latitude: ${position.coords.latitude}
+            <br>Longitude: ${position.coords.longitude}
+            <br>More or less ${position.coords.accuracy} meters.
+          `;
+        },
+
+        // On Error callback
+        (error) => {
+          console.log('Current Position Error:', error);
+          message.innerText = 'Geolocation failed to get the current position.';
+        }
+
+      );
+    });
+
+    // Watch position change
+    buttonWatchPosition.addEventListener('click', () => {
+      buttonCurrentPosition.disabled = true;
+      buttonWatchPosition.disabled = true;
+
+      /**
+       * Registers a handler function that will be called 
+       * automatically each time the position of the device changes.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition
+       */
+      navigator.geolocation.watchPosition(
+
+        // On Success callback
+        (position) => {
+          console.log('Watching Position:', position);
+
+          message.innerHTML = `
+            <strong>Watching Position:</strong>
+            <br>Latitude: ${position.coords.latitude}
+            <br>Longitude: ${position.coords.longitude}
+            <br>More or less ${position.coords.accuracy} meters.
+          `;
+        },
+
+        // On Error callback
+        (error) => {
+          console.log('Watch Position Error:', error);
+          message.innerText = 'Geolocation failed to watch position.';
+        }
+
+      );
+    });
+
+  }
+  else {
+    output.innerText = 'Geolocation API not available on this device.';
+  }
+}
+
+/**
  * Provides a consistent way to query the status of API
  * permissions attributed to the current context.
  * https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API 
@@ -696,61 +788,6 @@ function handlePermissionsAPI() {
   }
   else {
     output.innerText = 'Permission API not available on this device.';
-  }
-}
-
-/**
- * Allows the user to provide their location to web
- * applications if they so desire.
- * https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
- */
-function handleGeolocationAPI() {
-  console.log('Navigator:', navigator);
-  if ('geolocation' in navigator) {
-    console.log('Geolocation:', navigator.geolocation);
-
-    // Create the helper elements
-    const buttonCurrentPosition = document.createElement('button');
-    output.appendChild(buttonCurrentPosition);
-    buttonCurrentPosition.innerText = 'Current Position';
-
-    const buttonWatchPosition = document.createElement('button');
-    output.appendChild(buttonWatchPosition);
-    buttonWatchPosition.innerText = 'Watch Position';
-
-    const message = document.createElement('div');
-    message.innerText = '';
-    output.appendChild(message);
-
-    // Callback functions
-    const onLocationSuccess = (position) => {
-      console.log('Position:', position);
-
-      message.outerHTML = `
-        <br>Latitude: ${position.coords.latitude}
-        <br>Longitude: ${position.coords.longitude}
-        <br>More or less ${position.coords.accuracy} meters.
-      `;
-    }
-
-    const onLocationError = (error) => {
-      console.log('Error:', error);
-      message.innerText = 'Geolocation failed.';
-    }
-
-    // Get current position
-    buttonCurrentPosition.addEventListener('click', () => {
-      navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError);
-    });
-
-    // Watch position change
-    buttonWatchPosition.addEventListener('click', () => {
-      navigator.geolocation.watchPosition(onLocationSuccess, onLocationError);
-    });
-
-  }
-  else {
-    output.innerText = 'Geolocation API not available on this device.';
   }
 }
 
