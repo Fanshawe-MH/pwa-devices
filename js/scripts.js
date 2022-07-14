@@ -425,8 +425,7 @@ function handlePageVisibility() {
             .then((registration) => {
               registration.showNotification('Come back, please!!!', {
                 body: 'Don\'t leave me here alone.',
-                icon: '/pwa-devices/images/logo.png',
-                vibrate: [200, 100, 200, 100, 200, 100, 200]
+                icon: '/pwa-devices/images/logo.png'
               });
             });
         }
@@ -474,20 +473,22 @@ function aaa() {
 
 
 
+console.log('freeze1');
+document.addEventListener('freeze', function () {
+  // The page is now frozen for CPU or battery usage optimization.
+  console.log('The page is now frozen');
+});
 
-// document.addEventListener('freeze', function () {
-//   // The page is now frozen for CPU or battery usage optimization.
-//   console.log('The page is now frozen');
-// });
+document.addEventListener('resume', function () {
+  // The page has been unfrozen.
+  console.log('The page has been unfrozen.');
+  if (document.wasDiscarded) {
+    // Page was previously discarded by the browser while in a hidden tab.
+    console.log('Page was previously discarded by the browser while in a hidden tab.');
+  }
+});
 
-// document.addEventListener('resume', function () {
-//   // The page has been unfrozen.
-//   console.log('The page has been unfrozen.');
-//   if (document.wasDiscarded) {
-//     // Page was previously discarded by the browser while in a hidden tab.
-//     console.log('Page was previously discarded by the browser while in a hidden tab.');
-//   }
-// });
+console.log('freeze2');
 
 
 
