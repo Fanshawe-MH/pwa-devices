@@ -42,8 +42,8 @@ featureSelector.addEventListener('change', (event) => {
       handleVibrationAPI();
       break;
 
-    case 'aaaa':
-      aaaa();
+    case 'badging':
+      handleBadgingAPI();
       break;
 
     case 'aaaa':
@@ -293,7 +293,10 @@ function handleScreenOrientationAPI() {
 }
 
 /**
- * 
+ * The Navigator.vibrate method pulses the vibration 
+ * hardware on the device. Vibration is described as
+ * a pattern of on-off pulses.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API 
  */
 function handleVibrationAPI() {
   console.log('Navigator:', navigator);
@@ -304,6 +307,11 @@ function handleVibrationAPI() {
     output.appendChild(buttonSingle);
     buttonSingle.innerText = 'Single Vibration';
     buttonSingle.addEventListener('click', () => {
+
+      /**
+       * Pulses the vibration hardware on the device.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
+       */
       navigator.vibrate(200); // Vibrate for 200ms
     });
 
@@ -312,17 +320,93 @@ function handleVibrationAPI() {
     output.appendChild(buttonMultiple);
     buttonMultiple.innerText = 'Multiple Vibration';
     buttonMultiple.addEventListener('click', () => {
-      navigator.vibrate([200, 100, 200]); // Vibrate for 200ms
+
+      /**
+       * Pulses the vibration hardware on the device.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
+       */
+      navigator.vibrate([200, 100, 200, 300, 600]); // A sequence of vibrations and pauses.
     });
   }
   else {
-    output.innerText = 'Vibration is not suppoerted on this device.';
+    output.innerText = 'Vibration is not supported on this device.';
+  }
+}
+
+/**
+ * Sets a badge on a document or application, to act as a 
+ * notification that state has changed without displaying 
+ * a more distracting notification.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Badging_API
+ */
+function handleBadgingAPI() {
+  console.log('Navigator:', navigator);
+  if ('setAppBadge' in navigator || 'setClientBadge' in navigator) {
+
+    // Create a div element for displaying messages
+    const message = document.createElement('div');
+    message.innerText = '';
+    output.appendChild(message);
+
+    // Set App Badge
+    const buttonSetAppBadge = document.createElement('button');
+    output.appendChild(buttonSetAppBadge);
+    buttonSetAppBadge.innerText = 'Set App Badge';
+    buttonSetAppBadge.addEventListener('click', () => {
+
+      navigator.setAppBadge(12)
+        .then(() => {
+          message.innerText = 'Badge set to the app.';
+        });
+    });
+
+    // Clear App Badge
+    const buttonClearAppBadge = document.createElement('button');
+    output.appendChild(buttonClearAppBadge);
+    buttonClearAppBadge.innerText = 'Clear App Badge';
+    buttonClearAppBadge.addEventListener('click', () => {
+
+      navigator.clearAppBadge()
+        .then(() => {
+          message.innerText = 'Badge cleared from the app.';
+        });
+    });
+
+    // Set Client Badge
+    const buttonSetClientBadge = document.createElement('button');
+    output.appendChild(buttonSetClientBadge);
+    buttonSetClientBadge.innerText = 'Set Client Badge';
+    buttonSetClientBadge.addEventListener('click', () => {
+
+      navigator.setClientBadge(7)
+        .then(() => {
+          message.innerText = 'Badge set to the client.';
+        });
+    });
+
+    // Clear Client Badge
+    const buttonClearClientBadge = document.createElement('button');
+    output.appendChild(buttonClearClientBadge);
+    buttonClearClientBadge.innerText = 'Clear Client Badge';
+    buttonClearClientBadge.addEventListener('click', () => {
+
+      navigator.clearClientBadge()
+        .then(() => {
+          message.innerText = 'Badge cleared from the client.';
+        });
+    });
+
+  }
+  else {
+    output.innerText = 'Badge API not available on this device.';
   }
 }
 
 
 
-
+// navigator.setAppBadge(12);
+// // navigator.setClientBadge();
+// // navigator.clearClientBadge();
 
 
 
@@ -418,7 +502,7 @@ function aaa() {
 
 
 
-const button2 = document.getElementById('button2');
+// const button2 = document.getElementById('button2');
 
 
 
@@ -642,9 +726,6 @@ const button2 = document.getElementById('button2');
 
 
 
-// navigator.setAppBadge(12);
-// // navigator.setClientBadge();
-// // navigator.clearClientBadge();
 
 
 
