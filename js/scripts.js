@@ -565,29 +565,46 @@ function handleIdleDetectionAPI() {
       idleDetector.addEventListener('change', () => {
         console.log('Idle changed:', idleDetector);
 
+        /**
+         * Returns a string indicating whether the users has interacted
+         * with either the screen or the device since the call to start().
+         * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/userState
+         */
         const userState = idleDetector.userState;
+
+        /**
+         * Returns a string indicating whether the screen is locked.
+         * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/screenState
+         */
         const screenState = idleDetector.screenState;
+
         message.innerHTML += `
-          <div>Idle change: ${userState}, ${screenState}.</div>
+          <div>Idle change: user <b>${userState}</b>, screen <b>${screenState}</b>.</div>
         `;
       });
 
-      /**
-       * Returns a Promise that resolves when the detector starts
-       * listening for changes in the user's idle state.
-       * This method takes an optional 'options' object with 
-       * the 'threshold' in milliseconds where inactivity should
-       * be reported (minimum of 1 minute).
-       * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/start
-       */
-      idleDetector.start({
-        threshold: 60000
-      })
-        .then(() => {
-          console.log('Idle detection started.');
-          buttonDetection.disabled = true;
-        });
 
+      navigator.wakeLock.request('screen')
+        .then((sentinel) => {
+          console.log('WakeLockSentinel:', sentinel);
+
+          /**
+           * Returns a Promise that resolves when the detector starts
+           * listening for changes in the user's idle state.
+           * This method takes an optional 'options' object with 
+           * the 'threshold' in milliseconds where inactivity should
+           * be reported (minimum of 1 minute).
+           * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/start
+           */
+          idleDetector.start({
+            threshold: 60000
+          })
+            .then(() => {
+              console.log('Idle detection started.');
+              buttonDetection.disabled = true;
+            });
+
+        });
     });
 
     // Helper button to count elapsed seconds.
