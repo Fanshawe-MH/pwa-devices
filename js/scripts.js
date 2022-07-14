@@ -4,7 +4,7 @@ const output = document.getElementById('output');
 // Service Worker registration
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker
-    .register('/service-worker.js', { scope: '/' })
+    .register('/pwa-devices/service-worker.js', { scope: '/pwa-devices/' })
     .catch(function (error) {
       console.log('Service Worker failed to register:', error);
     });
