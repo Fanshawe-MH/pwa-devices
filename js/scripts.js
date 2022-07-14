@@ -50,12 +50,12 @@ featureSelector.addEventListener('change', (event) => {
       handlePageVisibility();
       break;
 
-    case 'screen-wake-lock':
-      handleScreenWakeLockAPI();
-      break;
-
     case 'idle-detection':
       handleIdleDetectionAPI();
+      break;
+
+    case 'screen-wake-lock':
+      handleScreenWakeLockAPI();
       break;
 
     case 'aaaa':
@@ -457,58 +457,6 @@ function handlePageVisibility() {
 }
 
 /**
- * The Screen Wake Lock API provides a way to prevent devices from dimming
- * or locking the screen when an application needs to keep running.
- * https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
- */
-function handleScreenWakeLockAPI() {
-  console.log('Navigator:', navigator);
-  if ('wakeLock' in navigator) {
-    console.log('Navigator wakeLock:', navigator.wakeLock);
-
-    /**
-     * The request() method returns a Promise that resolves with a
-     * WakeLockSentinel object, which allows control over screen
-     * dimming and locking.
-     * https://developer.mozilla.org/en-US/docs/Web/API/WakeLock/request
-     */
-    navigator.wakeLock.request('screen')
-      .then((sentinel) => {
-        console.log('WakeLockSentinel:', sentinel);
-
-        output.innerHTML = `
-          <div>Wake Lock is active!</div>
-        `;
-
-        // Create a button to release the lock.
-        const button = document.createElement('button');
-        button.innerText = 'Release screen';
-        output.append(button);
-
-        button.addEventListener('click', () => {
-
-          /**
-           * Releases the WakeLockSentinel.
-           * https://developer.mozilla.org/en-US/docs/Web/API/WakeLockSentinel/release
-           */
-          sentinel.release()
-            .then(() => {
-              sentinel = null;
-              output.innerHTML = `
-                Wake Lock deactivated.<br>
-                The screen was released!
-              `;
-            });
-        });
-
-      });
-  }
-  else {
-    output.innerText = 'Screen Wake Lock API not supported on this device.';
-  }
-}
-
-/**
  * Provides a means to detect the user's idle status, active, 
  * idle, and locked, specifically, and to be notified of changes 
  * to idle status.
@@ -583,27 +531,20 @@ function handleIdleDetectionAPI() {
         `;
       });
 
-
-      navigator.wakeLock.request('screen')
-        .then((sentinel) => {
-          console.log('WakeLockSentinel:', sentinel);
-
-          /**
-           * Returns a Promise that resolves when the detector starts
-           * listening for changes in the user's idle state.
-           * This method takes an optional 'options' object with 
-           * the 'threshold' in milliseconds where inactivity should
-           * be reported (minimum of 1 minute).
-           * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/start
-           */
-          idleDetector.start({
-            threshold: 60000
-          })
-            .then(() => {
-              console.log('Idle detection started.');
-              buttonDetection.disabled = true;
-            });
-
+      /**
+       * Returns a Promise that resolves when the detector starts
+       * listening for changes in the user's idle state.
+       * This method takes an optional 'options' object with 
+       * the 'threshold' in milliseconds where inactivity should
+       * be reported (minimum of 1 minute).
+       * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/start
+       */
+      idleDetector.start({
+        threshold: 60000
+      })
+        .then(() => {
+          console.log('Idle detection started.');
+          buttonDetection.disabled = true;
         });
     });
 
@@ -622,6 +563,58 @@ function handleIdleDetectionAPI() {
   }
   else {
     output.innerText = 'IdleDetector not supported on this device.';
+  }
+}
+
+/**
+ * The Screen Wake Lock API provides a way to prevent devices from dimming
+ * or locking the screen when an application needs to keep running.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API
+ */
+function handleScreenWakeLockAPI() {
+  console.log('Navigator:', navigator);
+  if ('wakeLock' in navigator) {
+    console.log('Navigator wakeLock:', navigator.wakeLock);
+
+    /**
+     * The request() method returns a Promise that resolves with a
+     * WakeLockSentinel object, which allows control over screen
+     * dimming and locking.
+     * https://developer.mozilla.org/en-US/docs/Web/API/WakeLock/request
+     */
+    navigator.wakeLock.request('screen')
+      .then((sentinel) => {
+        console.log('WakeLockSentinel:', sentinel);
+
+        output.innerHTML = `
+          <div>Wake Lock is active!</div>
+        `;
+
+        // Create a button to release the lock.
+        const button = document.createElement('button');
+        button.innerText = 'Release screen';
+        output.append(button);
+
+        button.addEventListener('click', () => {
+
+          /**
+           * Releases the WakeLockSentinel.
+           * https://developer.mozilla.org/en-US/docs/Web/API/WakeLockSentinel/release
+           */
+          sentinel.release()
+            .then(() => {
+              sentinel = null;
+              output.innerHTML = `
+                Wake Lock deactivated.<br>
+                The screen was released!
+              `;
+            });
+        });
+
+      });
+  }
+  else {
+    output.innerText = 'Screen Wake Lock API not supported on this device.';
   }
 }
 
