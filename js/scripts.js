@@ -58,8 +58,8 @@ featureSelector.addEventListener('change', (event) => {
       handleScreenWakeLockAPI();
       break;
 
-    case 'aaaa':
-      aaaa();
+    case 'permissions':
+      handlePermissionsAPI();
       break;
 
     case 'aaaa':
@@ -618,6 +618,81 @@ function handleScreenWakeLockAPI() {
   }
 }
 
+/**
+ * Provides a consistent way to query the status of API
+ * permissions attributed to the current context.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API 
+ */
+function handlePermissionsAPI() {
+  console.log('Navigator:', navigator);
+  if ('permissions' in navigator) {
+    console.log('Permissions:', navigator.permissions);
+
+    // Create the helper elements
+    const select = document.createElement('select');
+    output.appendChild(select);
+    console.log(select);
+
+    let option = document.createElement("option");
+    option.value = '';
+    option.text = '- Select -';
+    select.appendChild(option);
+
+    const values = ["geolocation", "notifications", "push", "midi", "camera", "microphone", "background-fetch", "background-sync", "persistent-storage", "ambient-light-sensor", "accelerometer", "gyroscope", "magnetometer", "screen-wake-lock", "nfc", "display-capture", "accessibility-events", "clipboard-read", "clipboard-write", "payment-handler", "idle-detection", "periodic-background-sync", "system-wake-lock", "storage-access", "window-placement", "local-fonts"];
+    for (const val of values) {
+      const option = document.createElement("option");
+      option.value = val;
+      option.text = val;
+      select.appendChild(option);
+    }
+
+    const message = document.createElement('div');
+    message.innerText = 'Select a permission above.';
+    output.appendChild(message);
+
+    // Query permissions
+    select.addEventListener('change', () => {
+      const selectedOption = select.value;
+
+      /**
+       * Returns the state of a user permission.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Permissions/query
+       */
+      navigator.permissions.query({
+        name: selectedOption,
+        userVisibleOnly: true // Only necessary for the Push API
+      })
+        .then(function (permissionStatus) {
+          console.log('Status:', permissionStatus);
+
+          message.innerHTML = `
+            State for <b>${permissionStatus.name}</b>: ${permissionStatus.state}
+          `;
+
+          if (permissionStatus.state === 'granted') {
+            // The app is allowed to use the API
+          }
+
+          /**
+           * Fires whenever the PermissionStatus.state property changes.
+           * https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
+           */
+          permissionStatus.addEventListener('change', function () {
+            message.innerHTML += `
+              <div>Changed state for <b>${this.name}</b>: ${this.state}</div>
+            `;
+          })
+        });
+    });
+
+  }
+  else {
+    output.innerText = 'Permission API not available on this device.';
+  }
+}
+
+
+
 
 
 
@@ -635,87 +710,7 @@ function aaa() {
 
 
 
-// console.log('freeze1');
-// document.addEventListener('freeze', function () {
-//   // The page is now frozen for CPU or battery usage optimization.
-//   console.log('The page is now frozen');
-// });
 
-// document.addEventListener('resume', function () {
-//   // The page has been unfrozen.
-//   console.log('The page has been unfrozen.');
-//   if (document.wasDiscarded) {
-//     // Page was previously discarded by the browser while in a hidden tab.
-//     console.log('Page was previously discarded by the browser while in a hidden tab.');
-//   }
-// });
-
-// console.log('freeze2');
-
-
-
-
-
-
-
-
-
-// const button2 = document.getElementById('button2');
-
-
-
-
-// button.addEventListener('click', () => {
-//   navigator.wakeLock.request('screen')
-//     .then((wakeLock) => {
-//       console.log('wakeLock:', wakeLock);
-
-//       wakeLock.onrelease = () => {
-//         console.log('released:', wakeLock);
-//       }
-
-//       button2.addEventListener('click', () => {
-//         wakeLock.release()
-//           .then((result) => {
-//             console.log('result:', result);
-//           });
-//       });
-
-
-//     })
-//     .catch(error => {
-//       console.log('error:', error);
-//     });
-// });
-
-
-
-
-
-
-
-
-// const button = document.getElementById('button');
-
-
-
-
-
-// if ('permissions' in navigator) {
-//   navigator.permissions.query({ name: 'magnetometer' })
-//     .then(function (permissionStatus) {
-//       console.log('Status:', permissionStatus);
-//       console.log('State:', permissionStatus.state);
-
-//       if (permissionStatus.state === 'granted') {
-//         // The app is allowed to use the API
-//       }
-
-//       permissionStatus.onchange = function () {
-//         console.log('Changed:', this.state);
-//       };
-//     });
-// }
 
 
 
