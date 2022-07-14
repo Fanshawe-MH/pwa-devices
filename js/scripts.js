@@ -62,6 +62,14 @@ featureSelector.addEventListener('change', (event) => {
       handlePermissionsAPI();
       break;
 
+    case 'geolocation':
+      handleGeolocationAPI();
+      break;
+
+    case 'aaaa':
+      aaaa();
+      break;
+
     case 'aaaa':
       aaaa();
       break;
@@ -666,7 +674,7 @@ function handlePermissionsAPI() {
           console.log('Status:', permissionStatus);
 
           message.innerHTML = `
-            State for <b>${permissionStatus.name}</b>: ${permissionStatus.state}
+            State for <b>${permissionStatus.name || selectedOption}</b>: ${permissionStatus.state}
           `;
 
           if (permissionStatus.state === 'granted') {
@@ -679,7 +687,7 @@ function handlePermissionsAPI() {
            */
           permissionStatus.addEventListener('change', function () {
             message.innerHTML += `
-              <div>Changed state for <b>${this.name}</b>: ${this.state}</div>
+              <div>Changed state for <b>${this.name || selectedOption}</b>: ${this.state}</div>
             `;
           })
         });
@@ -691,6 +699,60 @@ function handlePermissionsAPI() {
   }
 }
 
+/**
+ * Allows the user to provide their location to web
+ * applications if they so desire.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+ */
+function handleGeolocationAPI() {
+  console.log('Navigator:', navigator);
+  if ('geolocation' in navigator) {
+    console.log('Geolocation:', navigator.geolocation);
+
+    // Create the helper elements
+    const buttonCurrentPosition = document.createElement('button');
+    output.appendChild(buttonCurrentPosition);
+    buttonCurrentPosition.innerText = 'Current Position';
+
+    const buttonWatchPosition = document.createElement('button');
+    output.appendChild(buttonWatchPosition);
+    buttonWatchPosition.innerText = 'Watch Position';
+
+    const message = document.createElement('div');
+    message.innerText = '';
+    output.appendChild(message);
+
+    // Callback functions
+    const onLocationSuccess = (position) => {
+      console.log('Position:', position);
+
+      message.outerHTML = `
+        <br>Latitude: ${position.coords.latitude}
+        <br>Longitude: ${position.coords.longitude}
+        <br>More or less ${position.coords.accuracy} meters.
+      `;
+    }
+
+    const onLocationError = (error) => {
+      console.log('Error:', error);
+      message.innerText = 'Geolocation failed.';
+    }
+
+    // Get current position
+    buttonCurrentPosition.addEventListener('click', () => {
+      navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError);
+    });
+
+    // Watch position change
+    buttonWatchPosition.addEventListener('click', () => {
+      navigator.geolocation.watchPosition(onLocationSuccess, onLocationError);
+    });
+
+  }
+  else {
+    output.innerText = 'Geolocation API not available on this device.';
+  }
+}
 
 
 
@@ -714,28 +776,6 @@ function aaa() {
 
 
 
-
-// if ('geolocation' in navigator) {
-//   function onLocationSuccess(position) {
-//     // console.log('Your current position is:', position);
-//     // console.log(`Latitude: ${ position.coords.latitude } `);
-//     // console.log(`Longitude: ${ position.coords.longitude } `);
-//     // console.log(`More or less ${ position.coords.accuracy } meters.`);
-
-//     output.outerHTML = `
-//       <br>Latitude: ${position.coords.latitude}
-//       <br>Longitude: ${position.coords.longitude}
-//       <br>More or less ${position.coords.accuracy} meters.
-//     `;
-//   }
-
-//   function onLocationError(error) {
-//     console.log('Error:', error);
-//   }
-
-//   navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError);
-//   // navigator.geolocation.watchPosition(onLocationSuccess, onLocationError);
-// }
 
 
 
