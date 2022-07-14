@@ -515,13 +515,99 @@ function handleScreenWakeLockAPI() {
  * https://developer.mozilla.org/en-US/docs/Web/API/Idle_Detection_API
  */
 function handleIdleDetectionAPI() {
-  console.log('IdleDetector:', IdleDetector);
 
-  IdleDetector.requestPermission()
-    .then((permission) => {
-      console.log('IdleDetector permission:', permission);
+  if ('IdleDetector' in window) {
+    console.log('IdleDetector:', IdleDetector);
+
+    // Create the helper elements
+    const buttonPermission = document.createElement('button');
+    output.appendChild(buttonPermission);
+    buttonPermission.innerText = 'Request Permission';
+
+    const buttonDetection = document.createElement('button');
+    output.appendChild(buttonDetection);
+    buttonDetection.innerText = 'Start Listening';
+
+    const message = document.createElement('div');
+    message.innerText = '';
+    output.appendChild(message);
+
+    const buttonClock = document.createElement('button');
+    output.appendChild(buttonClock);
+    buttonClock.innerText = 'Clock';
+
+    // Requests for permission
+    buttonPermission.addEventListener('click', () => {
+
+      /**
+       * Returns a Promise that resolves with a string when 
+       * the user has chosen whether to grant the origin access 
+       * to their idle state.
+       * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/requestPermission 
+       */
+      IdleDetector.requestPermission()
+        .then((permission) => {
+          message.innerText = 'Permission: ' + permission;
+        });
     });
+
+    // Starts the detection
+    buttonDetection.addEventListener('click', () => {
+
+      // Creates a new IdleDetector object.
+      const idleDetector = new IdleDetector();
+      console.log('idleDetector', idleDetector);
+
+      /**
+       * Called when the value of userState or screenState has changed.
+       * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector#events
+       */
+      idleDetector.addEventListener('change', () => {
+        console.log('Idle changed:', idleDetector);
+
+        const userState = idleDetector.userState;
+        const screenState = idleDetector.screenState;
+        message.innerHTML += `
+          <div>Idle change: ${userState}, ${screenState}.</div>
+        `;
+      });
+
+      /**
+       * Returns a Promise that resolves when the detector starts
+       * listening for changes in the user's idle state.
+       * This method takes an optional 'options' object with 
+       * the 'threshold' in milliseconds where inactivity should
+       * be reported (minimum of 1 minute).
+       * https://developer.mozilla.org/en-US/docs/Web/API/IdleDetector/start
+       */
+      idleDetector.start({
+        threshold: 60000
+      })
+        .then(() => {
+          console.log('Idle detection started.');
+          buttonDetection.disabled = true;
+        });
+
+    });
+
+    // Helper button to count elapsed seconds.
+    // It has no relation to the IdleDetector object.
+    buttonClock.addEventListener('click', () => {
+      let seconds = 0;
+      buttonClock.innerText = 'Counting';
+
+      setInterval(() => {
+        seconds++;
+        buttonClock.innerText = seconds + ' seconds';
+      }, 1000);
+    });
+
+  }
+  else {
+    output.innerText = 'IdleDetector not supported on this device.';
+  }
 }
+
 
 
 
@@ -558,46 +644,6 @@ function aaa() {
 
 
 
-
-// // IdleDetector.requestPermission()
-// //   .then((result) => {
-// //     console.log('result', result);
-// //   });
-// const button = document.getElementById('button');
-// button.addEventListener('click', async () => {
-//   // Make sure 'idle-detection' permission is granted.
-//   const state = await IdleDetector.requestPermission();
-//   console.log('state', state);
-//   if (state !== 'granted') {
-//     // Need to request permission first.
-//     return console.log('Idle detection permission not granted.');
-//   }
-// });
-
-
-// const controller = new AbortController();
-// console.log('controller', controller);
-// const signal = controller.signal;
-// console.log('signal', signal);
-
-// const idleDetector = new IdleDetector();
-// console.log('idleDetector', idleDetector);
-// idleDetector.addEventListener('change', () => {
-//   const userState = idleDetector.userState;
-//   const screenState = idleDetector.screenState;
-//   console.log(`Idle change: ${userState}, ${screenState}.`);
-// });
-
-// idleDetector.start({
-//   threshold: 60000,
-//   signal,
-// })
-//   .then((result) => {
-//     console.log('result', result);
-//   })
-//   .catch((error) => {
-//     console.log('error', error);
-//   });
 
 
 
@@ -667,9 +713,9 @@ function aaa() {
 // if ('geolocation' in navigator) {
 //   function onLocationSuccess(position) {
 //     // console.log('Your current position is:', position);
-//     // console.log(`Latitude : ${position.coords.latitude}`);
-//     // console.log(`Longitude: ${position.coords.longitude}`);
-//     // console.log(`More or less ${position.coords.accuracy} meters.`);
+//     // console.log(`Latitude: ${ position.coords.latitude } `);
+//     // console.log(`Longitude: ${ position.coords.longitude } `);
+//     // console.log(`More or less ${ position.coords.accuracy } meters.`);
 
 //     output.outerHTML = `
 //       <br>Latitude: ${position.coords.latitude}
