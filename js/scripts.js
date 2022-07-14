@@ -46,8 +46,8 @@ featureSelector.addEventListener('change', (event) => {
       handleBadgingAPI();
       break;
 
-    case 'aaaa':
-      aaaa();
+    case 'page-visibility':
+      handlePageVisibility();
       break;
 
     case 'aaaa':
@@ -343,17 +343,27 @@ function handleBadgingAPI() {
   console.log('Navigator:', navigator);
   if ('setAppBadge' in navigator || 'setClientBadge' in navigator) {
 
-    // Create a div element for displaying messages
+    // Create the helper elements
+    const buttonSetAppBadge = document.createElement('button');
+    output.appendChild(buttonSetAppBadge);
+    buttonSetAppBadge.innerText = 'Set App Badge';
+
+    const buttonClearAppBadge = document.createElement('button');
+    output.appendChild(buttonClearAppBadge);
+    buttonClearAppBadge.innerText = 'Clear App Badge';
+
     const message = document.createElement('div');
     message.innerText = '';
     output.appendChild(message);
 
     // Set App Badge
-    const buttonSetAppBadge = document.createElement('button');
-    output.appendChild(buttonSetAppBadge);
-    buttonSetAppBadge.innerText = 'Set App Badge';
     buttonSetAppBadge.addEventListener('click', () => {
 
+      /**
+       * Sets a badge on the icon associated with this app.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/setAppBadge
+       * 
+       */
       navigator.setAppBadge(12)
         .then(() => {
           message.innerText = 'Badge set to the app.';
@@ -361,38 +371,15 @@ function handleBadgingAPI() {
     });
 
     // Clear App Badge
-    const buttonClearAppBadge = document.createElement('button');
-    output.appendChild(buttonClearAppBadge);
-    buttonClearAppBadge.innerText = 'Clear App Badge';
     buttonClearAppBadge.addEventListener('click', () => {
 
+      /**
+       * Clears the badge on the icon associated with this app.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/clearAppBadge
+       */
       navigator.clearAppBadge()
         .then(() => {
           message.innerText = 'Badge cleared from the app.';
-        });
-    });
-
-    // Set Client Badge
-    const buttonSetClientBadge = document.createElement('button');
-    output.appendChild(buttonSetClientBadge);
-    buttonSetClientBadge.innerText = 'Set Client Badge';
-    buttonSetClientBadge.addEventListener('click', () => {
-
-      navigator.setClientBadge(7)
-        .then(() => {
-          message.innerText = 'Badge set to the client.';
-        });
-    });
-
-    // Clear Client Badge
-    const buttonClearClientBadge = document.createElement('button');
-    output.appendChild(buttonClearClientBadge);
-    buttonClearClientBadge.innerText = 'Clear Client Badge';
-    buttonClearClientBadge.addEventListener('click', () => {
-
-      navigator.clearClientBadge()
-        .then(() => {
-          message.innerText = 'Badge cleared from the client.';
         });
     });
 
@@ -402,11 +389,59 @@ function handleBadgingAPI() {
   }
 }
 
+/**
+ * 
+ */
+function handlePageVisibility() {
+  let leftTime;
 
+  output.innerHTML = `
+    Page visibility set.<br>
+    Please, don't leave me!
+  `;
 
-// navigator.setAppBadge(12);
-// // navigator.setClientBadge();
-// // navigator.clearClientBadge();
+  /**
+   * Returns the visibility of the document
+   */
+  console.log('State:', document.visibilityState);
+
+  /**
+   * Event fired at the document when the contents of its tab
+   * have become visible or have been hidden.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilitychange_event
+   */
+  document.addEventListener("visibilitychange", function () {
+    console.log('State:', document.visibilityState);
+
+    if (document.visibilityState === 'hidden') {
+
+      // Register when the user left
+      leftTime = new Date();
+
+      // Display a notification
+      Notification.requestPermission((permission) => {
+        if (permission === 'granted') {
+          navigator.serviceWorker.ready
+            .then((registration) => {
+              registration.showNotification('Come back, please!!!', {
+                body: 'Don\'t leave me here alone.',
+                icon: '/pwa-devices/images/logo.png',
+                vibrate: [200, 100, 200, 100, 200, 100, 200]
+              });
+            });
+        }
+      });
+    }
+    else {
+      const now = new Date();
+      const timeAway = (now.getTime() - leftTime.getTime()) / 1000;
+      output.innerHTML = `
+        Welcome back!!!<br>
+        You were away for ${timeAway.toFixed(0)} seconds.
+      `;
+    }
+  });
+}
 
 
 

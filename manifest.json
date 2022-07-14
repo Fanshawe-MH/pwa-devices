@@ -1,7 +1,7 @@
 {
-  "name": "Native Devices Demo",
-  "short_name": "Native Devices Demo",
-  "description": "This app is a demo for the native devices APIs.",
+  "name": "Native Device Features Demo",
+  "short_name": "Device Features Demo",
+  "description": "This app is a demo for the native device features.",
   "start_url": "/pwa-devices/",
   "id": "/pwa-devices/",
   "display": "standalone",
