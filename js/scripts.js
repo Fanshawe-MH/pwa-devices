@@ -1657,7 +1657,7 @@ async function handleAbsoluteOrientationSensor() {
     absoluteOrientation.addEventListener('reading', () => {
       let orientation = '';
       absoluteOrientation.quaternion.forEach((value) => {
-        orientation += `<li>${value}</li>`;
+        orientation += `<li>${value.toFixed(15)}</li>`;
       });
 
       message.innerHTML = `
@@ -1799,7 +1799,7 @@ async function handleRelativeOrientationSensor() {
     relativeOrientation.addEventListener('reading', () => {
       let orientation = '';
       relativeOrientation.quaternion.forEach((value) => {
-        orientation += `<li>${value}</li>`;
+        orientation += `<li>${value.toFixed(15)}</li>`;
       });
 
       message.innerHTML = `
