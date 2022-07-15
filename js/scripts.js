@@ -843,13 +843,13 @@ async function handleAccelerometer() {
       const axisZ = accelerometer.z.toFixed(2);
 
       message.innerHTML = `
-            <div>Acceleration along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
-              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
-              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
-            </ul>
-          `;
+        <div>Acceleration along the:</div>
+        <ul>
+          <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+          <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+          <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+        </ul>
+      `;
     });
 
     // Enable the start button
@@ -979,13 +979,13 @@ async function handleLinearAccelerationSensor() {
       const axisZ = linearAcceleration.z.toFixed(2);
 
       message.innerHTML = `
-            <div>Linear acceleration along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
-              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
-              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
-            </ul>
-          `;
+        <div>Linear acceleration along the:</div>
+        <ul>
+          <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+          <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+          <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+        </ul>
+      `;
     });
 
     // Enable the start button
@@ -1114,13 +1114,13 @@ async function handleGyroscope() {
       const axisZ = gyroscope.z.toFixed(2);
 
       message.innerHTML = `
-            <div>Angular velocity along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> rad/s</li>
-              <li>Y-axis is <b>${axisY}</b> rad/s</li>
-              <li>Z-axis is <b>${axisZ}</b> rad/s</li>
-            </ul>
-          `;
+        <div>Angular velocity along the:</div>
+        <ul>
+          <li>X-axis is <b>${axisX}</b> rad/s</li>
+          <li>Y-axis is <b>${axisY}</b> rad/s</li>
+          <li>Z-axis is <b>${axisZ}</b> rad/s</li>
+        </ul>
+      `;
     });
 
     // Enable the start button
@@ -1247,13 +1247,13 @@ async function handleGravitySensor() {
       const axisZ = gravity.z.toFixed(2);
 
       message.innerHTML = `
-            <div>Gravity along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
-              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
-              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
-            </ul>
-          `;
+        <div>Gravity along the:</div>
+        <ul>
+          <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+          <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+          <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+        </ul>
+      `;
     });
 
     // Enable the start button
@@ -1383,13 +1383,13 @@ async function handleMagnetometer() {
       const axisZ = magnetometer.z.toFixed(2);
 
       message.innerHTML = `
-            <div>Magnetic field along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b></li>
-              <li>Y-axis is <b>${axisY}</b></li>
-              <li>Z-axis is <b>${axisZ}</b></li>
-            </ul>
-          `;
+        <div>Magnetic field along the:</div>
+        <ul>
+          <li>X-axis is <b>${axisX}</b></li>
+          <li>Y-axis is <b>${axisY}</b></li>
+          <li>Z-axis is <b>${axisZ}</b></li>
+        </ul>
+      `;
     });
 
     // Enable the start button
@@ -1560,21 +1560,19 @@ async function handleAmbientLightSensor() {
   });
 }
 
-
-//--------------------------------------
-
 /**
- * 
+ * Describes the device's physical orientation in relation to the Earth's reference coordinate system.
+ * To use this sensor, the user must grant permission to the 'accelerometer', 'gyroscope', and 'magnetometer' 
  */
 async function handleAbsoluteOrientationSensor() {
   console.log('Window:', window);
 
   // Validates the sensor API
-  if (!('Accelerometer' in window)) {
-    output.innerText = 'Accelerometer not available on this device.';
+  if (!('AbsoluteOrientationSensor' in window)) {
+    output.innerText = 'AbsoluteOrientationSensor not available on this device.';
     return;
   }
-  console.log('Accelerometer:', Accelerometer);
+  console.log('AbsoluteOrientationSensor:', AbsoluteOrientationSensor);
 
   // Validates the Permission API
   if (!('permissions' in navigator)) {
@@ -1588,6 +1586,24 @@ async function handleAbsoluteOrientationSensor() {
   });
   if (accelerometerPermission.state !== 'granted') {
     output.innerText = 'You are not autorized to use the accelerometer sensor.';
+    return;
+  }
+
+  // Validate the gyroscope permission (using await)
+  const gyroscopePermission = await navigator.permissions.query({
+    name: 'gyroscope'
+  });
+  if (gyroscopePermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the gyroscope sensor.';
+    return;
+  }
+
+  // Validate the magnetometer permission (using await)
+  const magnetometerPermission = await navigator.permissions.query({
+    name: 'magnetometer'
+  });
+  if (magnetometerPermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the magnetometer sensor.';
     return;
   }
 
@@ -1607,7 +1623,7 @@ async function handleAbsoluteOrientationSensor() {
   output.appendChild(message);
 
   // Declare the sensor variable
-  let accelerometer;
+  let absoluteOrientation;
 
   /**
    * Checking for thrown errors when instantiating a sensor object.
@@ -1616,20 +1632,20 @@ async function handleAbsoluteOrientationSensor() {
   try {
 
     /**
-     * Creates a new Accelerometer object.
-     * https://developer.mozilla.org/en-US/docs/Web/API/Accelerometer/Accelerometer
+     * Creates a new AbsoluteOrientationSensor object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/AbsoluteOrientationSensor/AbsoluteOrientationSensor
      */
-    accelerometer = new Accelerometer({
+    absoluteOrientation = new AbsoluteOrientationSensor({
       referenceFrame: 'device' // Either 'device' or 'screen'
     });
-    console.log('accelerometer:', accelerometer);
+    console.log('absoluteOrientation:', absoluteOrientation);
 
     /**
      * Listening for errors thrown during its use.
      * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
      */
-    accelerometer.addEventListener('error', event => {
-      message.innerText = 'Accelerometer failed: ' + event.error;
+    absoluteOrientation.addEventListener('error', event => {
+      message.innerText = 'AbsoluteOrientationSensor failed: ' + event.error;
       buttonStart.disabled = false;
       buttonStop.disabled = true;
     });
@@ -1638,26 +1654,25 @@ async function handleAbsoluteOrientationSensor() {
      * The reading event is fired when a new reading is available on a sensor.
      * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
      */
-    accelerometer.addEventListener('reading', () => {
-      const axisX = accelerometer.x.toFixed(2);
-      const axisY = accelerometer.y.toFixed(2);
-      const axisZ = accelerometer.z.toFixed(2);
+    absoluteOrientation.addEventListener('reading', () => {
+      let orientation = '';
+      absoluteOrientation.quaternion.forEach((value) => {
+        orientation += `<li>${value}</li>`;
+      });
 
       message.innerHTML = `
-            <div>Acceleration along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
-              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
-              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
-            </ul>
-          `;
+        <div>Absolute orientation: </div>
+        <ul>
+          ${orientation}
+        </ul>
+      `;
     });
 
     // Enable the start button
     buttonStart.disabled = false;
 
   } catch (error) {
-    message.innerText = 'Accelerometer error: ' + error;
+    message.innerText = 'AbsoluteOrientationSensor error: ' + error;
   }
 
   // Start the sensor
@@ -1668,7 +1683,7 @@ async function handleAbsoluteOrientationSensor() {
        * The start method activates one of the sensors based on Sensor.
        * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
        */
-      accelerometer.start();
+      absoluteOrientation.start();
 
       buttonStart.disabled = true;
       buttonStop.disabled = false;
@@ -1685,7 +1700,7 @@ async function handleAbsoluteOrientationSensor() {
        * The stop method deactivates the current sensor.
        * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
        */
-      accelerometer.stop();
+      absoluteOrientation.stop();
 
       buttonStart.disabled = false;
       buttonStop.disabled = true;
@@ -1697,17 +1712,18 @@ async function handleAbsoluteOrientationSensor() {
 }
 
 /**
- * 
+ * Describes the device's physical orientation without regard to the Earth's reference coordinate system.
+ * To use this sensor, the user must grant permission to the 'accelerometer', and 'gyroscope'.
  */
 async function handleRelativeOrientationSensor() {
   console.log('Window:', window);
 
   // Validates the sensor API
-  if (!('Accelerometer' in window)) {
-    output.innerText = 'Accelerometer not available on this device.';
+  if (!('RelativeOrientationSensor' in window)) {
+    output.innerText = 'RelativeOrientationSensor not available on this device.';
     return;
   }
-  console.log('Accelerometer:', Accelerometer);
+  console.log('RelativeOrientationSensor:', RelativeOrientationSensor);
 
   // Validates the Permission API
   if (!('permissions' in navigator)) {
@@ -1721,6 +1737,15 @@ async function handleRelativeOrientationSensor() {
   });
   if (accelerometerPermission.state !== 'granted') {
     output.innerText = 'You are not autorized to use the accelerometer sensor.';
+    return;
+  }
+
+  // Validate the gyroscope permission (using await)
+  const gyroscopePermission = await navigator.permissions.query({
+    name: 'gyroscope'
+  });
+  if (gyroscopePermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the gyroscope sensor.';
     return;
   }
 
@@ -1740,7 +1765,7 @@ async function handleRelativeOrientationSensor() {
   output.appendChild(message);
 
   // Declare the sensor variable
-  let accelerometer;
+  let relativeOrientation;
 
   /**
    * Checking for thrown errors when instantiating a sensor object.
@@ -1749,20 +1774,20 @@ async function handleRelativeOrientationSensor() {
   try {
 
     /**
-     * Creates a new Accelerometer object.
-     * https://developer.mozilla.org/en-US/docs/Web/API/Accelerometer/Accelerometer
+     * Creates a new RelativeOrientationSensor object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/RelativeOrientationSensor/RelativeOrientationSensor
      */
-    accelerometer = new Accelerometer({
+    relativeOrientation = new RelativeOrientationSensor({
       referenceFrame: 'device' // Either 'device' or 'screen'
     });
-    console.log('accelerometer:', accelerometer);
+    console.log('relativeOrientation:', relativeOrientation);
 
     /**
      * Listening for errors thrown during its use.
      * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
      */
-    accelerometer.addEventListener('error', event => {
-      message.innerText = 'Accelerometer failed: ' + event.error;
+    relativeOrientation.addEventListener('error', event => {
+      message.innerText = 'RelativeOrientationSensor failed: ' + event.error;
       buttonStart.disabled = false;
       buttonStop.disabled = true;
     });
@@ -1771,26 +1796,25 @@ async function handleRelativeOrientationSensor() {
      * The reading event is fired when a new reading is available on a sensor.
      * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
      */
-    accelerometer.addEventListener('reading', () => {
-      const axisX = accelerometer.x.toFixed(2);
-      const axisY = accelerometer.y.toFixed(2);
-      const axisZ = accelerometer.z.toFixed(2);
+    relativeOrientation.addEventListener('reading', () => {
+      let orientation = '';
+      relativeOrientation.quaternion.forEach((value) => {
+        orientation += `<li>${value}</li>`;
+      });
 
       message.innerHTML = `
-            <div>Acceleration along the:</div>
-            <ul>
-              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
-              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
-              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
-            </ul>
-          `;
+        <div>Relative orientation: </div>
+        <ul>
+          ${orientation}
+        </ul>
+      `;
     });
 
     // Enable the start button
     buttonStart.disabled = false;
 
   } catch (error) {
-    message.innerText = 'Accelerometer error: ' + error;
+    message.innerText = 'RelativeOrientationSensor error: ' + error;
   }
 
   // Start the sensor
@@ -1801,7 +1825,7 @@ async function handleRelativeOrientationSensor() {
        * The start method activates one of the sensors based on Sensor.
        * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
        */
-      accelerometer.start();
+      relativeOrientation.start();
 
       buttonStart.disabled = true;
       buttonStop.disabled = false;
@@ -1818,7 +1842,7 @@ async function handleRelativeOrientationSensor() {
        * The stop method deactivates the current sensor.
        * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
        */
-      accelerometer.stop();
+      relativeOrientation.stop();
 
       buttonStart.disabled = false;
       buttonStop.disabled = true;
@@ -1828,208 +1852,3 @@ async function handleRelativeOrientationSensor() {
     }
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// let laSensor = new LinearAccelerationSensor({ frequency: 60 });
-
-// laSensor.addEventListener('reading', e => {
-//   console.log("Linear acceleration along the X-axis " + laSensor.x);
-//   console.log("Linear acceleration along the Y-axis " + laSensor.y);
-//   console.log("Linear acceleration along the Z-axis " + laSensor.z);
-// });
-// laSensor.start();
-
-
-
-
-// let gyroscope = new Gyroscope({ frequency: 60 });
-
-// gyroscope.addEventListener('reading', e => {
-//   console.log("Angular velocity along the X-axis " + gyroscope.x);
-//   console.log("Angular velocity along the Y-axis " + gyroscope.y);
-//   console.log("Angular velocity along the Z-axis " + gyroscope.z);
-
-//   output.innerHTML = `
-//     <br>X-axis: ${gyroscope.x}
-//     <br>Y-axis: ${gyroscope.y}
-//     <br>Z-axis: ${gyroscope.z}
-//   `;
-// });
-// gyroscope.start();
-
-
-
-
-// let gravitySensor = new GravitySensor({ frequency: 60 });
-
-// gravitySensor.addEventListener("reading", e => {
-//   // console.log(`Gravity along the X-axis ${gravitySensor.x}`);
-//   // console.log(`Gravity along the Y-axis ${gravitySensor.y}`);
-//   // console.log(`Gravity along the Z-axis ${gravitySensor.z}`);
-
-//   output.innerHTML = `
-//     <br>X-axis: ${gravitySensor.x}
-//     <br>Y-axis: ${gravitySensor.y}
-//     <br>Z-axis: ${gravitySensor.z}
-//   `;
-
-// });
-
-// gravitySensor.start();
-
-
-
-
-// let magSensor = new Magnetometer({ frequency: 60 });
-// console.log('magSensor', magSensor);
-
-// magSensor.addEventListener('reading', e => {
-//   // console.log("Magnetic field along the X-axis " + magSensor.x);
-//   // console.log("Magnetic field along the Y-axis " + magSensor.y);
-//   // console.log("Magnetic field along the Z-axis " + magSensor.z);
-
-//   output.innerHTML = `
-//     <br>X-axis: ${magSensor.x}
-//     <br>Y-axis: ${magSensor.y}
-//     <br>Z-axis: ${magSensor.z}
-//   `;
-// });
-// magSensor.start();
-
-
-// if ('AmbientLightSensor' in window) {
-//   const sensor = new AmbientLightSensor();
-//   sensor.addEventListener('reading', event => {
-//     console.log('Current light level:', sensor.illuminance);
-//   });
-//   sensor.addEventListener('error', event => {
-//     console.log(event.error.name, event.error.message);
-//   });
-//   sensor.start();
-// }
-// else {
-//   console.log('nope');
-// }
-
-
-
-
-// const options = { frequency: 60, referenceFrame: 'device' };
-// const sensor = new AbsoluteOrientationSensor(options);
-
-// sensor.addEventListener('reading', () => {
-//   // model is a Three.js object instantiated elsewhere.
-//   //model.quaternion.fromArray(sensor.quaternion).inverse();
-//   console.log(sensor.quaternion);
-// });
-// sensor.addEventListener('error', error => {
-//   if (event.error.name == 'NotReadableError') {
-//     console.log("Sensor is not available.");
-//   }
-// });
-// sensor.start();
-
-
-
-// const options = { frequency: 60, referenceFrame: 'device' };
-// const sensor = new RelativeOrientationSensor(options);
-
-// sensor.addEventListener('reading', () => {
-//   // model is a Three.js object instantiated elsewhere.
-//   //model.quaternion.fromArray(sensor.quaternion).inverse();
-//   console.log(sensor.quaternion);
-// });
-// sensor.addEventListener('error', error => {
-//   if (event.error.name == 'NotReadableError') {
-//     console.log("Sensor is not available.");
-//   }
-// });
-// sensor.start();
-
-
-
-
-
-
-
-
-
-
-// const panel = document.getElementById('panel');
-// const output2 = document.getElementById('output2');
-// const output3 = document.getElementById('output3');
-// // panel.addEventListener('click', () => {
-// //   output.innerHTML = 'Clicked';
-// // });
-// panel.addEventListener('touchstart', (e) => {
-//   output.innerHTML = `
-//   touchstart: x: ${e.touches[0].pageX.toFixed(0)}, y: ${e.touches[0].pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('touchmove', (e) => {
-//   // console.log(e);
-//   output.innerHTML = `
-//   touchmove: x: ${e.touches[0].pageX.toFixed(0)}, y: ${e.touches[0].pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('touchend', (e) => {
-//   console.log(e);
-//   output.innerHTML = `
-//   touchend
-//   `;
-// });
-// panel.addEventListener('pointerdown', (e) => {
-//   output2.innerHTML = `
-//   pointerdown: x: ${e.offsetX.toFixed(0)}, y: ${e.offsetY.toFixed(0)}<br>
-//   pointerdown: x: ${e.pageX.toFixed(0)}, y: ${e.pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('pointermove', (e) => {
-//   output2.innerHTML = `
-//   pointermove: x: ${e.offsetX.toFixed(0)}, y: ${e.offsetY.toFixed(0)}<br>
-//   pointermove: x: ${e.pageX.toFixed(0)}, y: ${e.pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('pointerup', (e) => {
-//   output2.innerHTML = `
-//   pointerup: x: ${e.offsetX.toFixed(0)}, y: ${e.offsetY.toFixed(0)}<br>
-//   pointerup: x: ${e.pageX.toFixed(0)}, y: ${e.pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('mousedown', () => {
-//   output3.innerHTML = 'mousedown';
-// });
-// panel.addEventListener('mousemove', (e) => {
-//   output3.innerHTML = `
-//   mousemove: x: ${e.offsetX.toFixed(0)}, y: ${e.offsetY.toFixed(0)}<br>
-//   mousemove: x: ${e.pageX.toFixed(0)}, y: ${e.pageY.toFixed(0)}
-//   `;
-// });
-// panel.addEventListener('mouseup', () => {
-//   output3.innerHTML = 'mouseup';
-// });
-
-
-
-
-
-
-
-
-
-
