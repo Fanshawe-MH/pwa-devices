@@ -22,62 +22,29 @@ featureSelector.addEventListener('change', (event) => {
 
   const selectedOption = event.target.value;
   switch (selectedOption) {
-    case 'battery':
-      handleBatteryStatusAPI();
-      break;
+    case 'battery': handleBatteryStatusAPI(); break;
+    case 'network-info': handleNetworkInformation(); break;
+    case 'fullscreen': handleFullscreenAPI(); break;
+    case 'screen-orientation': handleScreenOrientationAPI(); break;
+    case 'vibration': handleVibrationAPI(); break;
+    case 'badging': handleBadgingAPI(); break;
+    case 'page-visibility': handlePageVisibility(); break;
+    case 'idle-detection': handleIdleDetectionAPI(); break;
+    case 'screen-wake-lock': handleScreenWakeLockAPI(); break;
+    case 'geolocation': handleGeolocationAPI(); break;
 
-    case 'network-info':
-      handleNetworkInformation();
-      break;
+    // Permissions API
+    case 'permissions': handlePermissionsAPI(); break;
 
-    case 'fullscreen':
-      handleFullscreenAPI();
-      break;
-
-    case 'screen-orientation':
-      handleScreenOrientationAPI();
-      break;
-
-    case 'vibration':
-      handleVibrationAPI();
-      break;
-
-    case 'badging':
-      handleBadgingAPI();
-      break;
-
-    case 'page-visibility':
-      handlePageVisibility();
-      break;
-
-    case 'idle-detection':
-      handleIdleDetectionAPI();
-      break;
-
-    case 'screen-wake-lock':
-      handleScreenWakeLockAPI();
-      break;
-
-    case 'geolocation':
-      handleGeolocationAPI();
-      break;
-
-    case 'permissions':
-      handlePermissionsAPI();
-      break;
-
-    case 'aaaa':
-      aaaa();
-      break;
-
-    case 'aaaa':
-      aaaa();
-      break;
-
-    case 'aaaa':
-      aaaa();
-      break;
-
+    // Sensor APIs
+    case 'accelerometer': handleAccelerometer(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
+    case 'aaaa': aaaa(); break;
   }
 });
 
@@ -193,12 +160,11 @@ function handleFullscreenAPI() {
   console.log('Document:', document);
   if ('fullscreenElement' in document && 'exitFullscreen' in document && document.fullscreenEnabled) {
 
-    // Create a button element for actions
+    // Create the helper elements
     const button = document.createElement('button');
     button.innerText = 'Toggle Fullscreen';
     output.appendChild(button);
 
-    // Create a div element for displaying messages
     const message = document.createElement('div');
     message.innerText = 'Click on the button above';
     output.appendChild(message);
@@ -252,7 +218,7 @@ function handleScreenOrientationAPI() {
     // Include the fullscreen mode functionality 
     handleFullscreenAPI();
 
-    // Create button elements for actions
+    // Create the helper elements
     const buttonLockPortrait = document.createElement('button');
     buttonLockPortrait.innerText = 'Lock Portrait';
     output.appendChild(buttonLockPortrait);
@@ -265,7 +231,6 @@ function handleScreenOrientationAPI() {
     buttonUnlock.innerText = 'Unlock';
     output.appendChild(buttonUnlock);
 
-    // Create a div element for displaying messages
     const message = document.createElement('div');
     message.innerText = '';
     output.appendChild(message);
@@ -322,10 +287,16 @@ function handleVibrationAPI() {
   console.log('Navigator:', navigator);
   if ('vibrate' in navigator) {
 
-    // Single vibration
+    // Create the helper elements
     const buttonSingle = document.createElement('button');
     output.appendChild(buttonSingle);
     buttonSingle.innerText = 'Single Vibration';
+
+    const buttonMultiple = document.createElement('button');
+    output.appendChild(buttonMultiple);
+    buttonMultiple.innerText = 'Multiple Vibration';
+
+    // Single vibration
     buttonSingle.addEventListener('click', () => {
 
       /**
@@ -336,9 +307,6 @@ function handleVibrationAPI() {
     });
 
     // Multiple vibration
-    const buttonMultiple = document.createElement('button');
-    output.appendChild(buttonMultiple);
-    buttonMultiple.innerText = 'Multiple Vibration';
     buttonMultiple.addEventListener('click', () => {
 
       /**
@@ -731,7 +699,6 @@ function handlePermissionsAPI() {
     // Create the helper elements
     const select = document.createElement('select');
     output.appendChild(select);
-    console.log(select);
 
     let option = document.createElement("option");
     option.value = '';
@@ -781,7 +748,7 @@ function handlePermissionsAPI() {
             message.innerHTML += `
               <div>Changed state for <b>${this.name || selectedOption}</b>: ${this.state}</div>
             `;
-          })
+          });
         });
     });
 
@@ -791,6 +758,94 @@ function handlePermissionsAPI() {
   }
 }
 
+/**
+ * 
+ */
+function handleAccelerometer() {
+  console.log('Window:', window);
+  if ('Accelerometer' in window) {
+    console.log('Accelerometer:', Accelerometer);
+
+    // Create the helper elements
+    const buttonPermission = document.createElement('button');
+    output.appendChild(buttonPermission);
+    buttonPermission.innerText = 'Permission';
+
+    const buttonStart = document.createElement('button');
+    output.appendChild(buttonStart);
+    buttonStart.innerText = 'Start';
+
+    const message = document.createElement('div');
+    message.innerText = '';
+    output.appendChild(message);
+
+    // Check the permission
+    buttonPermission.addEventListener('click', () => {
+      if ('permissions' in navigator) {
+        navigator.permissions.query({
+          name: 'accelerometer'
+        }).then(function (permissionStatus) {
+          message.innerHTML = `Permission: <b>${permissionStatus.state}</b>`;
+        });
+      }
+      else {
+        message.innerText = 'Permission API not available on this device.';
+      }
+    });
+
+    // Start the sensor
+    buttonStart.addEventListener('click', () => {
+      buttonPermission.disabled = true;
+      buttonStart.disabled = true;
+
+      /**
+       * Checking for thrown errors when instantiating a sensor object.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+       */
+      try {
+        const accelerometer = new Accelerometer({ referenceFrame: 'device' });
+        console.log('accelerometer:', accelerometer);
+
+        /**
+         * Listening for errors thrown during its use.
+         * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+         */
+        accelerometer.addEventListener('error', event => {
+          message.innerText = 'Accelerometer failed: ' + event.error;
+        });
+
+
+        accelerometer.addEventListener('reading', () => {
+          const axisX = accelerometer.x.toFixed(1);
+          const axisY = accelerometer.y.toFixed(1);
+          const axisZ = accelerometer.z.toFixed(1);
+
+          message.innerHTML = `
+            <div>Acceleration along the:</div>
+            <ul>
+              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+            </ul>
+          `;
+        });
+
+        accelerometer.start();
+
+      } catch (error) {
+        message.innerText = 'Accelerometer error: ' + error;
+      }
+    });
+
+  }
+  else {
+    output.innerText = 'Accelerometer not available on this device.';
+  }
+}
+
+
+
+handleAccelerometer()
 
 
 
@@ -816,21 +871,7 @@ function aaa() {
 
 
 
-// let acl = new Accelerometer();
-// acl.addEventListener('reading', () => {
-//   // console.log("Acceleration along the X-axis " + acl.x);
-//   // console.log("Acceleration along the Y-axis " + acl.y);
-//   // console.log("Acceleration along the Z-axis " + acl.z);
 
-//   output.innerHTML = `
-//     <br>X-axis: ${acl.x}
-//     <br>Y-axis: ${acl.y}
-//     <br>Z-axis: ${acl.z}
-//   `;
-
-// });
-
-// acl.start();
 
 
 
