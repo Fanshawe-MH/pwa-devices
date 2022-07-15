@@ -38,7 +38,7 @@ featureSelector.addEventListener('change', (event) => {
 
     // Sensor APIs
     case 'accelerometer': handleAccelerometer(); break;
-    case 'aaaa': aaaa(); break;
+    case 'linear-acceleration': handleLinearAccelerationSensor(); break;
     case 'aaaa': aaaa(); break;
     case 'aaaa': aaaa(); break;
     case 'aaaa': aaaa(); break;
@@ -759,68 +759,88 @@ function handlePermissionsAPI() {
 }
 
 /**
- * 
+ * Provides on each reading the acceleration applied to the device along all three axes.
+ * To use this sensor, the user must grant permission to the 'accelerometer'.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Accelerometer
  */
-function handleAccelerometer() {
+async function handleAccelerometer() {
   console.log('Window:', window);
-  if ('Accelerometer' in window) {
-    console.log('Accelerometer:', Accelerometer);
 
-    // Create the helper elements
-    const buttonPermission = document.createElement('button');
-    output.appendChild(buttonPermission);
-    buttonPermission.innerText = 'Permission';
+  // Validates the sensor API
+  if (!('Accelerometer' in window)) {
+    output.innerText = 'Accelerometer not available on this device.';
+    return;
+  }
+  console.log('Accelerometer:', Accelerometer);
 
-    const buttonStart = document.createElement('button');
-    output.appendChild(buttonStart);
-    buttonStart.innerText = 'Start';
+  // Validates the Permission API
+  if (!('permissions' in navigator)) {
+    output.innerText = 'Permission API not available on this device.';
+    return;
+  }
 
-    const message = document.createElement('div');
-    message.innerText = '';
-    output.appendChild(message);
+  // Validate the accelerometer permission (using await)
+  const accelerometerPermission = await navigator.permissions.query({
+    name: 'accelerometer'
+  });
+  if (accelerometerPermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the accelerometer sensor.';
+    return;
+  }
 
-    // Check the permission
-    buttonPermission.addEventListener('click', () => {
-      if ('permissions' in navigator) {
-        navigator.permissions.query({
-          name: 'accelerometer'
-        }).then(function (permissionStatus) {
-          message.innerHTML = `Permission: <b>${permissionStatus.state}</b>`;
-        });
-      }
-      else {
-        message.innerText = 'Permission API not available on this device.';
-      }
+  // Create the helper elements
+  const buttonStart = document.createElement('button');
+  buttonStart.innerText = 'Start';
+  buttonStart.disabled = true;
+  output.appendChild(buttonStart);
+
+  const buttonStop = document.createElement('button');
+  buttonStop.innerText = 'Stop';
+  buttonStop.disabled = true;
+  output.appendChild(buttonStop);
+
+  const message = document.createElement('div');
+  message.innerText = '';
+  output.appendChild(message);
+
+  // Declare the sensor variable
+  let accelerometer;
+
+  /**
+   * Checking for thrown errors when instantiating a sensor object.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+   */
+  try {
+
+    /**
+     * Creates a new Accelerometer object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Accelerometer/Accelerometer
+     */
+    accelerometer = new Accelerometer({
+      referenceFrame: 'device' // Either 'device' or 'screen'
+    });
+    console.log('accelerometer:', accelerometer);
+
+    /**
+     * Listening for errors thrown during its use.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+     */
+    accelerometer.addEventListener('error', event => {
+      message.innerText = 'Accelerometer failed: ' + event.error;
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
     });
 
-    // Start the sensor
-    buttonStart.addEventListener('click', () => {
-      buttonPermission.disabled = true;
-      buttonStart.disabled = true;
+    /**
+     * The reading event is fired when a new reading is available on a sensor.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
+     */
+    accelerometer.addEventListener('reading', () => {
+      const axisX = accelerometer.x.toFixed(2);
+      const axisY = accelerometer.y.toFixed(2);
+      const axisZ = accelerometer.z.toFixed(2);
 
-      /**
-       * Checking for thrown errors when instantiating a sensor object.
-       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
-       */
-      try {
-        const accelerometer = new Accelerometer({ referenceFrame: 'device' });
-        console.log('accelerometer:', accelerometer);
-
-        /**
-         * Listening for errors thrown during its use.
-         * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
-         */
-        accelerometer.addEventListener('error', event => {
-          message.innerText = 'Accelerometer failed: ' + event.error;
-        });
-
-
-        accelerometer.addEventListener('reading', () => {
-          const axisX = accelerometer.x.toFixed(1);
-          const axisY = accelerometer.y.toFixed(1);
-          const axisZ = accelerometer.z.toFixed(1);
-
-          message.innerHTML = `
+      message.innerHTML = `
             <div>Acceleration along the:</div>
             <ul>
               <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
@@ -828,26 +848,188 @@ function handleAccelerometer() {
               <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
             </ul>
           `;
-        });
-
-        accelerometer.start();
-
-      } catch (error) {
-        message.innerText = 'Accelerometer error: ' + error;
-      }
     });
 
+    // Enable the start button
+    buttonStart.disabled = false;
+
+  } catch (error) {
+    message.innerText = 'Accelerometer error: ' + error;
   }
-  else {
-    output.innerText = 'Accelerometer not available on this device.';
-  }
+
+  // Start the sensor
+  buttonStart.addEventListener('click', () => {
+    try {
+
+      /**
+       * The start method activates one of the sensors based on Sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
+       */
+      accelerometer.start();
+
+      buttonStart.disabled = true;
+      buttonStop.disabled = false;
+    } catch (error) {
+      message.innerText = 'It was not possible to start the sensor: ' + error;
+    }
+  });
+
+  // Stop the sensor
+  buttonStop.addEventListener('click', () => {
+    try {
+
+      /**
+       * The stop method deactivates the current sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
+       */
+      accelerometer.stop();
+
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+      message.innerHTML += "<div>Sensor stopped!</div>";
+    } catch (error) {
+      message.innerText = 'It was not possible to stop the sensor: ' + error;
+    }
+  });
 }
 
+/**
+ * provides on each reading the acceleration applied to the device along all
+ * three axes, but without the contribution of gravity.
+ * To use this sensor, the user must grant permission to the 'accelerometer'.
+ * https://developer.mozilla.org/en-US/docs/Web/API/LinearAccelerationSensor
+ */
+async function handleLinearAccelerationSensor() {
+  console.log('Window:', window);
 
+  // Validates the sensor API
+  if (!('LinearAccelerationSensor' in window)) {
+    output.innerText = 'LinearAccelerationSensor not available on this device.';
+    return;
+  }
+  console.log('LinearAccelerationSensor:', LinearAccelerationSensor);
 
-handleAccelerometer()
+  // Validates the Permission API
+  if (!('permissions' in navigator)) {
+    output.innerText = 'Permission API not available on this device.';
+    return;
+  }
 
+  // Validate the accelerometer permission (using await)
+  const accelerometerPermission = await navigator.permissions.query({
+    name: 'accelerometer'
+  });
+  if (accelerometerPermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the accelerometer sensor.';
+    return;
+  }
 
+  // Create the helper elements
+  const buttonStart = document.createElement('button');
+  buttonStart.innerText = 'Start';
+  buttonStart.disabled = true;
+  output.appendChild(buttonStart);
+
+  const buttonStop = document.createElement('button');
+  buttonStop.innerText = 'Stop';
+  buttonStop.disabled = true;
+  output.appendChild(buttonStop);
+
+  const message = document.createElement('div');
+  message.innerText = '';
+  output.appendChild(message);
+
+  // Declare the sensor variable
+  let linearAcceleration;
+
+  /**
+   * Checking for thrown errors when instantiating a sensor object.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+   */
+  try {
+
+    /**
+     * Creates a new LinearAccelerationSensor object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/LinearAccelerationSensor/LinearAccelerationSensor
+     */
+    linearAcceleration = new LinearAccelerationSensor({
+      referenceFrame: 'device' // Either 'device' or 'screen'
+    });
+    console.log('linearAcceleration:', linearAcceleration);
+
+    /**
+     * Listening for errors thrown during its use.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+     */
+    linearAcceleration.addEventListener('error', event => {
+      message.innerText = 'LinearAccelerationSensor failed: ' + event.error;
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+    });
+
+    /**
+     * The reading event is fired when a new reading is available on a sensor.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
+     */
+    linearAcceleration.addEventListener('reading', () => {
+      const axisX = linearAcceleration.x.toFixed(2);
+      const axisY = linearAcceleration.y.toFixed(2);
+      const axisZ = linearAcceleration.z.toFixed(2);
+
+      message.innerHTML = `
+            <div>Linear acceleration along the:</div>
+            <ul>
+              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+            </ul>
+          `;
+    });
+
+    // Enable the start button
+    buttonStart.disabled = false;
+
+  } catch (error) {
+    message.innerText = 'LinearAccelerationSensor error: ' + error;
+  }
+
+  // Start the sensor
+  buttonStart.addEventListener('click', () => {
+    try {
+
+      /**
+       * The start method activates one of the sensors based on Sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
+       */
+      linearAcceleration.start();
+
+      buttonStart.disabled = true;
+      buttonStop.disabled = false;
+    } catch (error) {
+      message.innerText = 'It was not possible to start the sensor: ' + error;
+    }
+  });
+
+  // Stop the sensor
+  buttonStop.addEventListener('click', () => {
+    try {
+
+      /**
+       * The stop method deactivates the current sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
+       */
+      linearAcceleration.stop();
+
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+      message.innerHTML += "<div>Sensor stopped!</div>";
+    } catch (error) {
+      message.innerText = 'It was not possible to stop the sensor: ' + error;
+    }
+  });
+}
+
+handleLinearAccelerationSensor();
 
 
 function aaa() {
