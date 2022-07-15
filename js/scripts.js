@@ -1,3 +1,5 @@
+'use strict';
+
 const featureSelector = document.getElementById('feature-selector');
 const output = document.getElementById('output');
 
@@ -1164,19 +1166,273 @@ async function handleGyroscope() {
   });
 }
 
+/**
+ * Provides on each reading the gravity applied to the device along all three axes.
+ * To use this sensor, the user must grant permission to the 'accelerometer' device sensor.
+ * https://developer.mozilla.org/en-US/docs/Web/API/GravitySensor
+ */
+async function handleGravitySensor() {
+  console.log('Window:', window);
 
-handleGyroscope();
+  // Validates the sensor API
+  if (!('GravitySensor' in window)) {
+    output.innerText = 'GravitySensor not available on this device.';
+    return;
+  }
+  console.log('GravitySensor:', GravitySensor);
 
+  // Validates the Permission API
+  if (!('permissions' in navigator)) {
+    output.innerText = 'Permission API not available on this device.';
+    return;
+  }
+
+  // Validate the accelerometer permission (using await)
+  const accelerometerPermission = await navigator.permissions.query({
+    name: 'accelerometer'
+  });
+  if (accelerometerPermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the accelerometer sensor.';
+    return;
+  }
+
+  // Create the helper elements
+  const buttonStart = document.createElement('button');
+  buttonStart.innerText = 'Start';
+  buttonStart.disabled = true;
+  output.appendChild(buttonStart);
+
+  const buttonStop = document.createElement('button');
+  buttonStop.innerText = 'Stop';
+  buttonStop.disabled = true;
+  output.appendChild(buttonStop);
+
+  const message = document.createElement('div');
+  message.innerText = '';
+  output.appendChild(message);
+
+  // Declare the sensor variable
+  let gravity;
+
+  /**
+   * Checking for thrown errors when instantiating a sensor object.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+   */
+  try {
+
+    /**
+     * Creates a new GravitySensor object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/GravitySensor/GravitySensor
+     */
+    gravity = new GravitySensor();
+    console.log('gravity:', gravity);
+
+    /**
+     * Listening for errors thrown during its use.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+     */
+    gravity.addEventListener('error', event => {
+      message.innerText = 'GravitySensor failed: ' + event.error;
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+    });
+
+    /**
+     * The reading event is fired when a new reading is available on a sensor.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
+     */
+    gravity.addEventListener('reading', () => {
+      const axisX = gravity.x.toFixed(2);
+      const axisY = gravity.y.toFixed(2);
+      const axisZ = gravity.z.toFixed(2);
+
+      message.innerHTML = `
+            <div>Gravity along the:</div>
+            <ul>
+              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+            </ul>
+          `;
+    });
+
+    // Enable the start button
+    buttonStart.disabled = false;
+
+  } catch (error) {
+    message.innerText = 'GravitySensor error: ' + error;
+  }
+
+  // Start the sensor
+  buttonStart.addEventListener('click', () => {
+    try {
+
+      /**
+       * The start method activates one of the sensors based on Sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
+       */
+      gravity.start();
+
+      buttonStart.disabled = true;
+      buttonStop.disabled = false;
+    } catch (error) {
+      message.innerText = 'It was not possible to start the sensor: ' + error;
+    }
+  });
+
+  // Stop the sensor
+  buttonStop.addEventListener('click', () => {
+    try {
+
+      /**
+       * The stop method deactivates the current sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
+       */
+      gravity.stop();
+
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+      message.innerHTML += "<div>Sensor stopped!</div>";
+    } catch (error) {
+      message.innerText = 'It was not possible to stop the sensor: ' + error;
+    }
+  });
+}
 
 /**
- * 
+ * Provides information about the magnetic field as detected by the device's primary magnetometer sensor.
+ * To use this sensor, the user must grant permission to the 'magnetometer' device sensor.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Magnetometer
  */
-async function handleGravitySensor() { }
+async function handleMagnetometer() {
+  console.log('Window:', window);
 
-/**
- * 
- */
-async function handleMagnetometer() { }
+  // Validates the sensor API
+  if (!('Magnetometer' in window)) {
+    output.innerText = 'Magnetometer not available on this device.';
+    return;
+  }
+  console.log('Magnetometer:', Magnetometer);
+
+  // Validates the Permission API
+  if (!('permissions' in navigator)) {
+    output.innerText = 'Permission API not available on this device.';
+    return;
+  }
+
+  // Validate the magnetometer permission (using await)
+  const magnetometerPermission = await navigator.permissions.query({
+    name: 'magnetometer'
+  });
+  if (magnetometerPermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the magnetometer sensor.';
+    return;
+  }
+
+  // Create the helper elements
+  const buttonStart = document.createElement('button');
+  buttonStart.innerText = 'Start';
+  buttonStart.disabled = true;
+  output.appendChild(buttonStart);
+
+  const buttonStop = document.createElement('button');
+  buttonStop.innerText = 'Stop';
+  buttonStop.disabled = true;
+  output.appendChild(buttonStop);
+
+  const message = document.createElement('div');
+  message.innerText = '';
+  output.appendChild(message);
+
+  // Declare the sensor variable
+  let magnetometer;
+
+  /**
+   * Checking for thrown errors when instantiating a sensor object.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+   */
+  try {
+
+    /**
+     * Creates a new Magnetometer object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Magnetometer/Magnetometer
+     */
+    magnetometer = new Magnetometer({
+      referenceFrame: 'device' // Either 'device' or 'screen'
+    });
+    console.log('magnetometer:', magnetometer);
+
+    /**
+     * Listening for errors thrown during its use.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+     */
+    magnetometer.addEventListener('error', event => {
+      message.innerText = 'Magnetometer failed: ' + event.error;
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+    });
+
+    /**
+     * The reading event is fired when a new reading is available on a sensor.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
+     */
+    magnetometer.addEventListener('reading', () => {
+      const axisX = magnetometer.x.toFixed(2);
+      const axisY = magnetometer.y.toFixed(2);
+      const axisZ = magnetometer.z.toFixed(2);
+
+      message.innerHTML = `
+            <div>Magnetic field along the:</div>
+            <ul>
+              <li>X-axis is <b>${axisX}</b> m/s<sup>2</sup></li>
+              <li>Y-axis is <b>${axisY}</b> m/s<sup>2</sup></li>
+              <li>Z-axis is <b>${axisZ}</b> m/s<sup>2</sup></li>
+            </ul>
+          `;
+    });
+
+    // Enable the start button
+    buttonStart.disabled = false;
+
+  } catch (error) {
+    message.innerText = 'Magnetometer error: ' + error;
+  }
+
+  // Start the sensor
+  buttonStart.addEventListener('click', () => {
+    try {
+
+      /**
+       * The start method activates one of the sensors based on Sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
+       */
+      magnetometer.start();
+
+      buttonStart.disabled = true;
+      buttonStop.disabled = false;
+    } catch (error) {
+      message.innerText = 'It was not possible to start the sensor: ' + error;
+    }
+  });
+
+  // Stop the sensor
+  buttonStop.addEventListener('click', () => {
+    try {
+
+      /**
+       * The stop method deactivates the current sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
+       */
+      magnetometer.stop();
+
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+      message.innerHTML += "<div>Sensor stopped!</div>";
+    } catch (error) {
+      message.innerText = 'It was not possible to stop the sensor: ' + error;
+    }
+  });
+}
 
 /**
  * 
