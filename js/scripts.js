@@ -39,12 +39,12 @@ featureSelector.addEventListener('change', (event) => {
     // Sensor APIs
     case 'accelerometer': handleAccelerometer(); break;
     case 'linear-acceleration': handleLinearAccelerationSensor(); break;
-    case 'aaaa': aaaa(); break;
-    case 'aaaa': aaaa(); break;
-    case 'aaaa': aaaa(); break;
-    case 'aaaa': aaaa(); break;
-    case 'aaaa': aaaa(); break;
-    case 'aaaa': aaaa(); break;
+    case 'gyroscope': handleGyroscope(); break;
+    case 'gravity': handleGravitySensor(); break;
+    case 'magnetometer': handleMagnetometer(); break;
+    case 'ambient-light': handleAmbientLightSensor(); break;
+    case 'absolute-orientation': handleAbsoluteOrientationSensor(); break;
+    case 'relative-orientation': handleRelativeOrientationSensor(); break;
   }
 });
 
@@ -894,7 +894,7 @@ async function handleAccelerometer() {
 }
 
 /**
- * provides on each reading the acceleration applied to the device along all
+ * Provides on each reading the acceleration applied to the device along all
  * three axes, but without the contribution of gravity.
  * To use this sensor, the user must grant permission to the 'accelerometer'.
  * https://developer.mozilla.org/en-US/docs/Web/API/LinearAccelerationSensor
@@ -1029,19 +1029,169 @@ async function handleLinearAccelerationSensor() {
   });
 }
 
-handleLinearAccelerationSensor();
+/**
+ * Provides on each reading the angular velocity of the device along all three axes.
+ * To use this sensor, the user must grant permission to the 'gyroscope' device sensor.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Gyroscope
+ */
+async function handleGyroscope() {
+  console.log('Window:', window);
 
-
-function aaa() {
-  if ('aaa' in aaa) {
-    console.log('aaa:', aaa.aaa);
-
-
+  // Validates the sensor API
+  if (!('Gyroscope' in window)) {
+    output.innerText = 'Gyroscope not available on this device.';
+    return;
   }
-  else {
-    output.innerText = 'aaa not available on this device.';
+  console.log('Gyroscope:', Gyroscope);
+
+  // Validates the Permission API
+  if (!('permissions' in navigator)) {
+    output.innerText = 'Permission API not available on this device.';
+    return;
   }
+
+  // Validate the gyroscope permission (using await)
+  const gyroscopePermission = await navigator.permissions.query({
+    name: 'gyroscope'
+  });
+  if (gyroscopePermission.state !== 'granted') {
+    output.innerText = 'You are not autorized to use the gyroscope sensor.';
+    return;
+  }
+
+  // Create the helper elements
+  const buttonStart = document.createElement('button');
+  buttonStart.innerText = 'Start';
+  buttonStart.disabled = true;
+  output.appendChild(buttonStart);
+
+  const buttonStop = document.createElement('button');
+  buttonStop.innerText = 'Stop';
+  buttonStop.disabled = true;
+  output.appendChild(buttonStop);
+
+  const message = document.createElement('div');
+  message.innerText = '';
+  output.appendChild(message);
+
+  // Declare the sensor variable
+  let gyroscope;
+
+  /**
+   * Checking for thrown errors when instantiating a sensor object.
+   * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+   */
+  try {
+
+    /**
+     * Creates a new Gyroscope object.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Gyroscope/Gyroscope
+     */
+    gyroscope = new Gyroscope({
+      referenceFrame: 'device' // Either 'device' or 'screen'
+    });
+    console.log('gyroscope:', gyroscope);
+
+    /**
+     * Listening for errors thrown during its use.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs#defensive_programming
+     */
+    gyroscope.addEventListener('error', event => {
+      message.innerText = 'Gyroscope failed: ' + event.error;
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+    });
+
+    /**
+     * The reading event is fired when a new reading is available on a sensor.
+     * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/reading_event
+     */
+    gyroscope.addEventListener('reading', () => {
+      const axisX = gyroscope.x.toFixed(2);
+      const axisY = gyroscope.y.toFixed(2);
+      const axisZ = gyroscope.z.toFixed(2);
+
+      message.innerHTML = `
+            <div>Angular velocity along the:</div>
+            <ul>
+              <li>X-axis is <b>${axisX}</b> rad/s</li>
+              <li>Y-axis is <b>${axisY}</b> rad/s</li>
+              <li>Z-axis is <b>${axisZ}</b> rad/s</li>
+            </ul>
+          `;
+    });
+
+    // Enable the start button
+    buttonStart.disabled = false;
+
+  } catch (error) {
+    message.innerText = 'Gyroscope error: ' + error;
+  }
+
+  // Start the sensor
+  buttonStart.addEventListener('click', () => {
+    try {
+
+      /**
+       * The start method activates one of the sensors based on Sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/start
+       */
+      gyroscope.start();
+
+      buttonStart.disabled = true;
+      buttonStop.disabled = false;
+    } catch (error) {
+      message.innerText = 'It was not possible to start the sensor: ' + error;
+    }
+  });
+
+  // Stop the sensor
+  buttonStop.addEventListener('click', () => {
+    try {
+
+      /**
+       * The stop method deactivates the current sensor.
+       * https://developer.mozilla.org/en-US/docs/Web/API/Sensor/stop
+       */
+      gyroscope.stop();
+
+      buttonStart.disabled = false;
+      buttonStop.disabled = true;
+      message.innerHTML += "<div>Sensor stopped!</div>";
+    } catch (error) {
+      message.innerText = 'It was not possible to stop the sensor: ' + error;
+    }
+  });
 }
+
+
+handleGyroscope();
+
+
+/**
+ * 
+ */
+async function handleGravitySensor() { }
+
+/**
+ * 
+ */
+async function handleMagnetometer() { }
+
+/**
+ * 
+ */
+async function handleAmbientLightSensor() { }
+
+/**
+ * 
+ */
+async function handleAbsoluteOrientationSensor() { }
+
+/**
+ * 
+ */
+async function handleRelativeOrientationSensor() { }
 
 
 
